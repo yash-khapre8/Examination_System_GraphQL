@@ -1,0 +1,160 @@
+# ==========================================
+# ITM Skills University - VIVA QUERIES
+# Project: Online Examination System
+# ==========================================
+
+"""
+How to use this file:
+Copy the code blocks below and paste them into the GraphiQL interface 
+at http://127.0.0.1:5000/graphql to demonstrate the project logic.
+"""
+
+# ------------------------------------------
+# 1. QUERIES (FETCHING DATA)
+# ------------------------------------------
+
+# FETCH ALL EXAMS
+# This demonstrates the relationship between Exam, Question, and Option models.
+# It returns the exam title, status, and the text of all questions and their options.
+query GetAllExams {
+  getExams {
+    id
+    title
+    duration
+    status
+    questions {
+      edges {
+        node {
+          text
+          marks
+          options {
+            edges {
+              node {
+                id
+                text
+                isCorrect
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# FETCH ALL STUDENTS
+# Returns a list of all enrolled students and their current status (e.g., 'active').
+query GetAllStudents {
+  getStudents {
+    id
+    name
+    email
+    status
+  }
+}
+
+# FETCH ATTEMPTS FOR A SPECIFIC STUDENT
+# Shows which exams a student has taken, their scores, and whether they were submitted.
+query GetStudentResults {
+  getAttemptsByStudent(studentId: 1) {
+    id
+    exam {
+      title
+    }
+    score
+    status
+    createdAt
+  }
+}
+
+# ------------------------------------------
+# 2. MUTATIONS (MODIFYING DATA)
+# ------------------------------------------
+
+# CREATE A NEW STUDENT
+# Registers a new student in the database.
+mutation CreateStudent {
+  createStudent(name: "Yash", email: "yash@itm.edu", status: "active") {
+    student {
+      id
+      name
+    }
+  }
+}
+
+# START AN EXAM (Logic Validation)
+# This mutation performs two critical checks:
+# 1. It verifies if the exam is currently 'ongoing'.
+# 2. It prevents a student from starting the same exam multiple times (Duplicate Prevention).
+mutation StartExam {
+  startExam(input: {
+    studentId: 1,
+    examId: 1
+  }) {
+    attempt {
+      id
+      status
+    }
+  }
+}
+
+# SUBMIT AN EXAM (Auto-Scoring Logic)
+# This is the most complex mutation. It:
+# 1. Records all provided answers in the 'Responses' table.
+# 2. Automatically calculates the total score based on the correct answers.
+# 3. Updates the Attempt status to 'submitted'.
+mutation SubmitExam {
+  submitExam(
+    studentId: 1, 
+    examId: 1, 
+    answers: [
+      { questionId: "1", optionId: "2" }
+    ]
+  ) {
+    attempt {
+      id
+      status
+      score
+    }
+  }
+}
+
+# CREATE AN EXAM (Administrative)
+# Used to add a new test to the system.
+mutation CreateExam {
+  createExam(title: "Database Management", duration: 60, status: "ongoing") {
+    exam {
+      id
+      title
+    }
+  }
+}
+
+# ADD A QUESTION TO AN EXAM
+mutation CreateQuestion {
+  createQuestion(examId: 1, text: "Explain normalized forms in SQL.", marks: 10) {
+    question {
+      id
+      text
+    }
+  }
+}
+
+# ADD AN OPTION TO A QUESTION
+mutation CreateOption {
+  createOption(question_id: 1, text: "True", is_correct: true) {
+    option {
+      id
+      text
+    }
+  }
+}
+
+# UPDATE STUDENT INFO
+mutation UpdateStudent {
+  updateStudent(id: 1, name: "Yash Khapre", status: "graduated") {
+    id
+    name
+    status
+  }
+}

@@ -1,0 +1,131 @@
+# ==========================================
+# STEP-BY-STEP EXAMINATION FLOW EXAMPLE
+# Follow these steps in order to test the full system
+# ==========================================
+
+# ------------------------------------------
+# STEP 1: CREATE A STUDENT
+# ------------------------------------------
+# Purpose: Register a new candidate who will take the exam.
+mutation {
+  createStudent(name: "Yash", email: "yash.student@itm.edu") {
+    student {
+      id
+      name
+    }
+  }
+}
+
+# ------------------------------------------
+# STEP 2: CREATE AN EXAM
+# ------------------------------------------
+# Purpose: Define the exam metadata. 
+# Note: 'status' must be "ongoing" for students to be able to start it.
+mutation {
+  createExam(title: "GraphQL Mastery", duration: 30, status: "ongoing") {
+    exam {
+      id
+      title
+    }
+  }
+}
+
+# ------------------------------------------
+# STEP 3: ADD A QUESTION TO THE EXAM
+# ------------------------------------------
+# Purpose: Add content to the exam created in Step 2.
+# Use the 'examId' returned from Step 2 (usually 1 if first time).
+mutation {
+  createQuestion(examId: 1, text: "What is a Mutation in GraphQL?", marks: 10) {
+    question {
+      id
+      text
+    }
+  }
+}
+
+# ------------------------------------------
+# STEP 4: ADD AN OPTION TO THE QUESTION
+# ------------------------------------------
+# Purpose: Add a correct answer to the question from Step 3.
+# Use the 'questionId' returned from Step 3 (usually 1).
+mutation {
+  createOption(question_id: 1, text: "A way to modify server-side data", is_correct: true) {
+    option {
+      id
+      text
+    }
+  }
+}
+
+# ------------------------------------------
+# STEP 5: VERIFY THE EXAM SETUP
+# ------------------------------------------
+# Purpose: Ensure the exam, question, and options are linked correctly.
+query {
+  getExams {
+    id
+    title
+    questions {
+      edges {
+        node {
+          text
+          options {
+            edges {
+              node { id text isCorrect }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# ------------------------------------------
+# STEP 6: START THE EXAM
+# ------------------------------------------
+# Purpose: The student begins the test.
+# This creates an 'Attempt' record in the database.
+mutation {
+  startExam(input: {
+    studentId: 1,
+    examId: 1
+  }) {
+    attempt {
+      id
+      status
+    }
+  }
+}
+
+# ------------------------------------------
+# STEP 7: SUBMIT THE EXAM
+# ------------------------------------------
+# Purpose: The student finishes the test.
+# The system will automatically calculate the score based on Step 4.
+mutation {
+  submitExam(
+    studentId: 1, 
+    examId: 1, 
+    answers: [
+      { questionId: "1", optionId: "1" }
+    ]
+  ) {
+    attempt {
+      status
+      score
+    }
+  }
+}
+
+# ------------------------------------------
+# STEP 8: VIEW FINAL RESULTS
+# ------------------------------------------
+# Purpose: Check the student's performance across all exams.
+query {
+  getAttemptsByStudent(studentId: 1) {
+    exam { title }
+    score
+    status
+  }
+}

@@ -142,7 +142,7 @@ mutation CreateQuestion {
 
 # ADD AN OPTION TO A QUESTION
 mutation CreateOption {
-  createOption(question_id: 1, text: "True", is_correct: true) {
+  createOption(questionId: 1, text: "True", isCorrect: true) {
     option {
       id
       text

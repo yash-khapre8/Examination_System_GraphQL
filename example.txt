@@ -50,7 +50,7 @@ mutation {
 # Purpose: Add a correct answer to the question from Step 3.
 # Use the 'questionId' returned from Step 3 (usually 1).
 mutation {
-  createOption(question_id: 1, text: "A way to modify server-side data", is_correct: true) {
+  createOption(questionId: 1, text: "A way to modify server-side data", isCorrect: true) {
     option {
       id
       text

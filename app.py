@@ -58,7 +58,7 @@ def create_app():
         result = schema.execute(
             data.get('query'),
             variable_values=data.get('variables'),
-            context_value=request
+            context_value={'request': request}
         )
         
         response_data = {'data': result.data}

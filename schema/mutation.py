@@ -62,11 +62,37 @@ class SubmitExam(graphene.Mutation):
         attempt = ExamResolver.submit_exam(student_id, exam_id, answers)
         return SubmitExam(attempt=attempt)
 
+class CreateQuestion(graphene.Mutation):
+    class Arguments:
+        exam_id = graphene.Int(required=True)
+        text = graphene.String(required=True)
+        marks = graphene.Int(required=True)
+    
+    question = graphene.Field(QuestionType)
+
+    def mutate(self, info, exam_id, text, marks):
+        question = QuestionResolver.create_question(exam_id, text, marks)
+        return CreateQuestion(question=question)
+
+class CreateOption(graphene.Mutation):
+    class Arguments:
+        question_id = graphene.Int(required=True)
+        text = graphene.String(required=True)
+        is_correct = graphene.Boolean(required=True)
+    
+    option = graphene.Field(OptionType)
+
+    def mutate(self, info, question_id, text, is_correct):
+        option = QuestionResolver.create_option(question_id, text, is_correct)
+        return CreateOption(option=option)
+
 class Mutation(graphene.ObjectType):
     create_student = CreateStudent.Field()
     create_exam = CreateExam.Field()
     start_exam = StartExam.Field()
     submit_exam = SubmitExam.Field()
+    create_question = CreateQuestion.Field()
+    create_option = CreateOption.Field()
     
     # Other management mutations
     update_student = graphene.Field(StudentType, id=graphene.Int(required=True), name=graphene.String(), email=graphene.String(), status=graphene.String())
